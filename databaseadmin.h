@@ -2,11 +2,10 @@
 #define DATABASEADMIN_H
 
 #include <QMainWindow>
-#include <QSqlQueryModel>
+#include <QSqlTableModel>
 #include <QSettings>
-#include <QItemSelection>
+#include <QSqlRecord>  // Добавлено для работы с QSqlRecord
 
-QT_BEGIN_NAMESPACE
 class QTableView;
 class QTextEdit;
 class QStatusBar;
@@ -14,10 +13,6 @@ class QDockWidget;
 class QMenu;
 class QToolBar;
 class QAction;
-class QSqlDatabase;
-class QSqlQuery;
-class QStandardItemModel;
-QT_END_NAMESPACE
 
 class DatabaseAdmin : public QMainWindow
 {
@@ -32,70 +27,53 @@ protected:
 
 private slots:
     // Database operations
+    void createDatabase();
+    void dropDatabase();  // Добавлено
     void connectToDatabase();
     void disconnectFromDatabase();
-    void showDatabaseInfo();
     void refreshData();
 
     // Table operations
     void showTables();
-    void showTableStructure();
     void createTable();
     void dropTable();
-    void renameTable();
-    void truncateTable();
 
     // Data operations
     void executeQuery();
     void exportToCSV();
     void importFromCSV();
     void copyData();
-    void pasteData();
     void deleteSelectedRows();
     void insertRow();
+    void submitChanges();
+    void revertChanges();
 
     // View operations
     void filterData();
     void sortData();
     void resetView();
 
-    // Settings
-    void showPreferences();
-    void about();
-
 private:
     void setupUI();
-    void setupConnections();
     void createMenus();
     void createToolBars();
-    void createStatusBar();
     void loadSettings();
     void saveSettings();
+    void refreshDatabaseList();  // Добавлено
+
     bool confirmAction(const QString &message);
-
-    // Database helpers
-    bool checkDatabaseConnection();
+    bool databaseExists(const QString &dbName);  // Добавлено
     QStringList getTableList();
+    QStringList getDatabaseList() const;  // Добавлено
     QString currentTableName() const;
-
-    // CSV helpers
-    QStringList parseCSVLine(const QString &line);
-    QString escapeCSVValue(const QString &value) const;
-
-    // Data helpers
-    void updateRowCount();
     void executeAndShowQuery(const QString &query);
     void showError(const QString &title, const QSqlError &error);
 
-    // UI components
+    QSqlTableModel *sqlModel;
     QTableView *tableView;
     QTextEdit *queryEditor;
     QStatusBar *statusBar;
     QDockWidget *queryDock;
-
-    // Models
-    QSqlQueryModel *sqlModel;
-    QStandardItemModel *csvModel;
 
     // Actions
     QAction *connectAction;
@@ -106,19 +84,16 @@ private:
     QAction *exportAction;
     QAction *importAction;
     QAction *copyAction;
-    QAction *pasteAction;
     QAction *deleteAction;
     QAction *insertAction;
+    QAction *submitAction;
+    QAction *revertAction;
     QAction *filterAction;
     QAction *sortAction;
     QAction *resetAction;
 
-    // Settings
     QSettings *settings;
     QString lastDir;
-    bool autoRefresh;
-    int refreshInterval;
-    QString lastDatabase;
 };
 
 #endif // DATABASEADMIN_H
